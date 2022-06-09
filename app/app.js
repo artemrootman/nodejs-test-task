@@ -20,8 +20,8 @@ app.get('/', function (req, res) {
 })
 
 app.get('/clear_cookie', function (req, res) {
-  res.clearCookie('email')
-  res.status(200).send('cookie email cleared')
+  res.clearCookie('visit')
+  res.status(200).send('cookie visit cleared')
 })
 
 app.listen(PORT, () => {
