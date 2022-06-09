@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Register Your User Email</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <h4>User Registration</h4>
+      <div class="panel panel-primary">
+        <div class="panel-heading"></div>
+        <div class="panel-body">
+          <form
+            class="form-horizontal"
+            action="javascript:void(0);"
+            id="frmdata"
+            onsubmit="submitFormData(this)"
+          >
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="email">Email:</label>
+              <div class="col-sm-10">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  placeholder="Enter email"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-success">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function setCookie(cName, cValue, expDays) {
+        let date = new Date()
+        date.setTime(date.getTime() + expDays * 24 * 60 * 60 * 1000)
+        const expires = 'expires=' + date.toUTCString()
+        document.cookie = cName + '=' + cValue + '; ' + expires + '; path=/'
+      }
+
+      function getCookie(cName) {
+        const name = cName + '='
+        const cDecoded = decodeURIComponent(document.cookie)
+        const cArr = cDecoded.split('; ')
+        let res
+        cArr.forEach((val) => {
+          if (val.indexOf(name) === 0) res = val.substring(name.length)
+        })
+        return res
+      }
+
+      function isUserExist() {
+        var oldUser = getCookie('visit')
+        if (oldUser) {
+          var http = new XMLHttpRequest()
+          var url = '/users/' + oldUser
+
+          http.open('GET', url, true)
+
+          http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+              var r = JSON.parse(http.responseText)
+              var user = r.email
+              alert(`Welcome back, ${user}`)
+              document.getElementById('frmdata').reset()
+            }
+          }
+          http.send()
+        }
+      }
+
+      isUserExist()
+
+      function submitFormData(event) {
+        var email = event.email.value
+        var ua = navigator.userAgent
+
+        if (email) {
+          var http = new XMLHttpRequest()
+          var url = '/users/new'
+          var json = { email: email, ua: ua }
+
+          http.open('POST', url, true)
+
+          http.setRequestHeader('Content-type', 'application/json')
+
+          http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+              document.getElementById('frmdata').reset()
+              var r = JSON.parse(http.responseText)
+              var hash = r.data
+              var b64 = btoa(email + '|' + hash)
+              setCookie('visit', b64, 30)
+            }
+          }
+        }
+        http.send(JSON.stringify(json))
+      }
+    </script>
+  </body>
+</html>
